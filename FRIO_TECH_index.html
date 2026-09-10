@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<title>FRIO TECH V2.2.1</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#07111f;color:#edf6ff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:520px;margin:auto;min-height:100vh;padding:22px 16px 90px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.logo{font-weight:800;font-size:25px}.logo span{color:#39d5c5}
+.badge{font-size:11px;padding:6px 9px;border:1px solid #24405a;border-radius:20px;color:#8fa9bd}
+h1{font-size:28px;margin:8px 0}.sub{color:#8fa9bd;margin-bottom:18px}
+.card{background:#0d1c2c;border:1px solid #1b344b;border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 8px 24px #0002}
+input,select,button{width:100%;border-radius:13px;border:1px solid #29465e;background:#091725;color:#fff;padding:13px;font-size:15px}
+button{background:#12334a;border-color:#2a6078;font-weight:700;cursor:pointer}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tile{min-height:105px;text-align:left}.icon{font-size:24px;display:block;margin-bottom:8px}.muted{color:#8fa9bd;font-size:13px}.success{border-color:#1e806f;background:#0b2a28}.warn{border-color:#8a7130}.danger{border-color:#8b3d46}.hidden{display:none}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center}.pill{padding:5px 8px;border-radius:12px;background:#18324a;font-size:12px}
+.step{border-left:3px solid #39d5c5;padding:10px 12px;margin:10px 0;background:#0a1725;border-radius:0 12px 12px 0}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);background:#081522ee;backdrop-filter:blur(12px);border-top:1px solid #1b344b;display:flex;justify-content:space-around;padding:10px 8px calc(10px + env(safe-area-inset-bottom))}
+.nav button{background:transparent;border:0;padding:8px;color:#9db2c4}.nav button.active{color:#39d5c5}
+small{color:#7891a5}a{color:#39d5c5}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="logo">🧊 FRIO <span>TECH</span></div><div class="badge">V2 PROTÓTIPO</div></header>
+
+<section id="home">
+<h1>Diagnóstico no bolso.</h1><div class="sub">Escolhe a máquina e segue o diagnóstico passo a passo.</div>
+<div class="card"><input id="search" placeholder="🔎 Pesquisar código ou sintoma" oninput="searchAll()"></div>
+<div class="grid">
+<button id="guideBtn" onclick="startGuide()">🧠 GUIAR-ME — diagnóstico passo a passo</button><button class="card tile" onclick="show('brands')"><span class="icon">🏭</span>Marcas<small>Modelos e séries</small></button>
+<button class="card tile" onclick="show('symptoms')"><span class="icon">🔧</span>Sintomas<small>Diagnóstico guiado</small></button>
+<button class="card tile" onclick="show('thermistor')"><span class="icon">🧪</span>Termístor<small>Testar resistência</small></button>
+<button class="card tile" onclick="show('favorites')"><span class="icon">⭐</span>Favoritos<small>Consultas guardadas</small></button>
+</div>
+<div class="card"><div class="row"><b>Primeiro fluxo disponível</b><span class="pill">General/Fujitsu</span></div><p class="muted">E:41 / E:42 — sensores interiores. Seleciona o modelo para iniciar.</p><button onclick="startCode('E:42')">Abrir diagnóstico E:42</button></div>
+</section>
+
+<section id="brands" class="hidden">
+<h1>Marcas</h1><div class="sub">V2 começa com General/Fujitsu.</div>
+<div class="card"><b>GENERAL / FUJITSU</b><p class="muted">Exemplos de famílias suportadas no protótipo: ARTG/AOTG R410A.</p>
+<select id="model"><option value="ARTG45/54/60LDTA • AOTG45/54/60LBTA">ARTG45/54/60LDTA / AOTG45/54/60LBTA</option><option value="ARTG09/12LLLB • AOTG09/12LBCA">ARTG09/12LLLB / AOTG09/12LBCA</option><option value="ARTC72/90LATU • AOTA72/90LALT">ARTC72/90LATU / AOTA72/90LALT</option></select>
+<div class="grid" style="margin-top:10px"><button onclick="startCode('E:00')">E:00</button><button onclick="startCode('E:01')">E:01</button><button onclick="startCode('E:04')">E:04</button><button onclick="startCode('E:06')">E:06</button><button onclick="startCode('E:09')">E:09</button><button onclick="startCode('E:0C')">E:0C</button><button onclick="startCode('E:11')">E:11</button><button onclick="startCode('E:12')">E:12</button><button onclick="startCode('E:15')">E:15</button><button onclick="startCode('E:16')">E:16</button><button onclick="startCode('E:17')">E:17</button><button onclick="startCode('E:18')">E:18</button><button onclick="startCode('E:41')">E:41</button><button onclick="startCode('E:42')">E:42</button><button onclick="startCode('E:51')">E:51</button><button onclick="startCode('E:53')">E:53</button></div></div>
+<div class="card"><b>Próximas marcas</b><p class="muted">Daikin • Mitsubishi Electric • LG • Samsung</p></div>
+</section>
+
+<section id="diagnosis" class="hidden">
+<h1 id="diagTitle">Diagnóstico</h1><div class="sub" id="diagSub"></div>
+<div class="card" id="diagCard"></div>
+</section>
+
+<section id="thermistor" class="hidden">
+<h1>🧪 Teste de termístor</h1><div class="sub">Use sempre a tabela específica do modelo/série.</div>
+<div class="card">
+<label class="muted">Tipo</label><select id="sensor" onchange="thermistorHint()"><option value="room">Ambiente interior</option><option value="hex">Permutador interior</option><option value="discharge">Descarga</option><option value="compressor">Compressor</option><option value="outdoorhex">Permutador exterior</option><option value="outdoor">Temperatura exterior</option></select>
+<label class="muted">Temperatura do sensor (°C)</label><input id="temp" type="number" value="20">
+<label class="muted">Resistência medida (kΩ)</label><input id="ohm" type="number" step="0.01" placeholder="Ex.: 62.9">
+<button onclick="checkThermistor()" style="margin-top:10px">Comparar</button>
+</div><div id="thermResult"></div>
+<div class="card muted">Segurança: resistência deve ser medida com alimentação isolada e o termístor desligado da PCB. Testes com tensão só devem ser feitos por técnico qualificado.</div>
+</section>
+
+<section id="symptoms" class="hidden">
+<h1>🔧 Sintomas</h1><div class="sub">Escolhe o problema observado.</div>
+<div class="card"><button onclick="symptom('Não faz frio')">❄️ Não faz frio</button></div>
+<div class="card"><button onclick="symptom('Compressor não arranca')">⚙️ Compressor não arranca</button></div>
+<div class="card"><button onclick="symptom('Ventilador não funciona')">🌀 Ventilador não funciona</button></div>
+<div class="card"><button onclick="symptom('Perde água')">💧 Perde água</button></div>
+<div class="card"><button onclick="symptom('Congela')">🧊 Evaporador congela</button></div>
+</section>
+
+<section id="favorites" class="hidden">
+<h1>⭐ Favoritos</h1><div id="favList" class="card muted">Ainda não tens favoritos.</div>
+</section>
+
+<section id="searchResults" class="hidden"><h1>Resultados</h1><div id="results"></div></section>
+</div>
+
+<nav class="nav"><button onclick="show('home')" class="active">⌂ Início</button><button onclick="show('brands')">🏭 Marcas</button><button onclick="show('symptoms')">🔧 Sintomas</button><button onclick="show('thermistor')">🧪 Testes</button></nav>
+
+
+<section id="guide" class="screen">
+  <div class="top"><button onclick="show('home')">← Voltar</button><b>🧠 GUIAR-ME</b></div>
+  <div class="card">
+    <h2 id="guideTitle">Vamos diagnosticar</h2>
+    <p id="guideText" class="muted">Responde a uma pergunta de cada vez.</p>
+    <div id="guideChoices" class="grid"></div>
+  </div>
+  <div id="guideProgress" class="muted"></div>
+  <div class="card" id="guideResult" style="display:none"></div>
+</section>
+
+<script>
+
+const guideState={step:0,answers:{}};
+const guideSteps=[
+ {q:"Qual é o principal sintoma?", opts:[
+   ["🚫 A máquina não funciona","off"],["❄️ Não arrefece","cool"],["🔥 Não aquece","heat"],
+   ["🧊 Está a congelar","ice"],["💧 Deita água","water"],["⚡ Disjuntor dispara","breaker"],
+   ["🌀 Ventilador não funciona","fan"],["🧯 Compressor não arranca","compressor"]
+ ]},
+ {q:"A unidade interior apresenta sinais de vida?", opts:[
+   ["🟢 Sim","yes"],["🔴 Não","no"],["❓ Não sei","unknown"]
+ ], only:["off"]},
+ {q:"Há alimentação elétrica confirmada no equipamento?", opts:[
+   ["🟢 Sim","yes"],["🔴 Não","no"],["❓ Não sei","unknown"]
+ ], only:["off"]},
+ {q:"O ventilador interior funciona?", opts:[
+   ["🟢 Sim","yes"],["🔴 Não","no"],["❓ Não sei","unknown"]
+ ], only:["off","cool","heat"]},
+ {q:"O compressor arranca?", opts:[
+   ["🟢 Sim","yes"],["🔴 Não","no"],["❓ Não sei","unknown"]
+ ], only:["off","cool","heat","compressor"]},
+ {q:"Há gelo visível no permutador/tubagem?", opts:[
+   ["🟢 Sim","yes"],["🔴 Não","no"],["❓ Não sei","unknown"]
+ ], only:["cool","ice"]},
+ {q:"Há água a sair da unidade interior?", opts:[
+   ["🟢 Sim","yes"],["🔴 Não","no"],["❓ Não sei","unknown"]
+ ], only:["water"]},
+ {q:"O disjuntor dispara imediatamente ou pouco depois de ligar?", opts:[
+   ["⚡ Imediatamente","immediate"],["⏱️ Depois de algum tempo","later"],["❓ Não sei","unknown"]
+ ], only:["breaker"]},
+];
+
+function guideApplicable(s){
+  const st=guideSteps[s];
+  if(!st.only) return true;
+  const symptom=guideState.answers.symptom;
+  return st.only.includes(symptom);
+}
+function nextGuideStep(){
+  while(guideState.step < guideSteps.length && !guideApplicable(guideState.step)) guideState.step++;
+  if(guideState.step >= guideSteps.length){finishGuide(); return;}
+  const st=guideSteps[guideState.step];
+  document.getElementById("guideTitle").textContent="🧠 GUIAR-ME";
+  document.getElementById("guideText").textContent=st.q;
+  const box=document.getElementById("guideChoices");
+  box.innerHTML=st.opts.map(o=>`<button onclick="answerGuide('${o[1]}')">${o[0]}</button>`).join("");
+  document.getElementById("guideProgress").textContent=`Passo ${guideState.step+1}`;
+}
+function startGuide(){
+  guideState.step=0; guideState.answers={};
+  document.getElementById("guideResult").style.display="none";
+  show("guide"); nextGuideStep();
+}
+function answerGuide(v){
+  const key=guideSteps[guideState.step].q;
+  if(guideState.step===0) guideState.answers.symptom=v;
+  else guideState.answers["s"+guideState.step]=v;
+  guideState.step++; nextGuideStep();
+}
+function finishGuide(){
+  const a=guideState.answers, symptom=a.symptom;
+  let title="Diagnóstico inicial";
+  let text="Continuar com inspeção e confirmar o modelo/código de erro.";
+  if(symptom==="off" && a.s1==="no" && a.s2==="no"){
+    title="🔴 Sem alimentação confirmada";
+    text="Verificar proteção, alimentação e cablagem conforme o esquema elétrico do modelo. Não assumir falha de PCB sem confirmar alimentação e ligações.";
+  } else if(symptom==="off" && a.s3==="no"){
+    title="🟡 Ventilador interior";
+    text="Investigar motor, alimentação, conectores e controlo da PCB conforme o modelo. Não substituir a placa apenas pelo sintoma.";
+  } else if((symptom==="compressor" || symptom==="cool" || symptom==="heat" || symptom==="off") && a.s4==="no"){
+    title="🟡 Compressor não arranca";
+    text="Confirmar proteções, alimentação/controlo do compressor, sensores e eletrónica inverter de acordo com o modelo.";
+  } else if(symptom==="ice" || (symptom==="cool" && a.s5==="yes")){
+    title="🟡 Indício de congelamento";
+    text="Verificar caudal de ar, filtros, permutador, temperaturas de funcionamento e circuito frigorífico segundo o modelo. Não concluir falta de refrigerante apenas pelo gelo.";
+  } else if(symptom==="water" && a.s6==="yes"){
+    title="🟡 Drenagem / condensados";
+    text="Inspecionar filtro, bandeja, tubo de drenagem, inclinação e bomba (se existir). Confirmar a causa antes de intervir.";
+  } else if(symptom==="breaker"){
+    title="🔴 Proteção elétrica a atuar";
+    text="Não voltar a ligar repetidamente. Isolar o equipamento e seguir o procedimento elétrico do fabricante; procurar curto, fuga à terra, compressor/inverter ou cablagem conforme o modelo.";
+  } else {
+    title="🟡 Diagnóstico em aberto";
+    text="O resultado não identifica uma peça sozinho. Confirmar modelo, códigos/LEDs e seguir o próximo teste específico do fabricante.";
+  }
+  document.getElementById("guideTitle").textContent=title;
+  document.getElementById("guideText").textContent=text;
+  document.getElementById("guideChoices").innerHTML=`<button onclick="startGuide()">🔄 Novo diagnóstico</button><button onclick="show('home')">🏠 Início</button>`;
+  const r=document.getElementById("guideResult");
+  r.style.display="block";
+  r.innerHTML=`<b>⚠️ Nota técnica</b><br><span class="muted">Este é um diagnóstico inicial. A confirmação deve ser feita com o modelo/série e documentação técnica correspondente.</span>`;
+  document.getElementById("guideProgress").textContent="Diagnóstico concluído";
+}
+
+const data={
+"E:00":{title:"Falha de comunicação do comando remoto",flow:"Comunicação / comando",sensors:null},
+"E:01":{title:"Falha de comunicação série",flow:"Comunicação entre unidades",sensors:null},
+"E:02":{title:"Termístor de ambiente interior — circuito aberto/curto",flow:"Sensor de temperatura ambiente interior",sensors:"room"},
+"E:03":{title:"Termístor de ambiente interior — circuito aberto/curto",flow:"Sensor de temperatura ambiente interior",sensors:"room"},
+"E:04":{title:"Termístor do permutador interior — circuito aberto/curto",flow:"Sensor do permutador de calor interior",sensors:"hex"},
+"E:05":{title:"Termístor do permutador interior — circuito aberto/curto",flow:"Sensor do permutador de calor interior",sensors:"hex"},
+"E:06":{title:"Termístor do permutador exterior",flow:"Sensor do permutador de calor exterior",sensors:"outdoorhex"},
+"E:09":{title:"Anomalia de drenagem de água",flow:"Drenagem / condensados",sensors:null},
+"E:0A":{title:"Termístor de temperatura exterior",flow:"Sensor de temperatura exterior",sensors:"outdoor"},
+"E:0C":{title:"Termístor da tubagem de descarga",flow:"Sensor de descarga",sensors:"discharge"},
+"E:0E":{title:"Termístor do dissipador de calor",flow:"Sensor do dissipador",sensors:"outdoorhex"},
+"E:0F":{title:"Temperatura de descarga elevada",flow:"Proteção por temperatura de descarga",sensors:"discharge"},
+"E:11":{title:"Falha de identificação / memória da unidade interior",flow:"PCB / EEPROM / identificação",sensors:null},
+"E:12":{title:"Falha do motor do ventilador interior",flow:"Ventilador interior",sensors:null},
+"E:15":{title:"Termístor do compressor",flow:"Sensor do compressor",sensors:"compressor"},
+"E:16":{title:"Falha / proteção de pressão",flow:"Pressão / proteção",sensors:null},
+"E:17":{title:"Proteção IPM / módulo de potência",flow:"Inverter / módulo de potência",sensors:null},
+"E:18":{title:"Falha de sensor de corrente (CT)",flow:"Medição de corrente",sensors:null},
+"E:19":{title:"Falha do filtro ativo / PFC",flow:"Alimentação / eletrónica de potência",sensors:null},
+"E:1A":{title:"Falha de localização do rotor do compressor",flow:"Compressor / inverter",sensors:null},
+"E:1B":{title:"Falha do motor do ventilador exterior",flow:"Ventilador exterior",sensors:null},
+"E:41":{title:"Erro do termístor de ambiente interior",flow:"Sensor de temperatura ambiente interior",sensors:"room"},
+"E:42":{title:"Erro do termístor do permutador interior",flow:"Sensor do permutador de calor interior",sensors:"hex"},
+"E:51":{title:"Falha do ventilador interior",flow:"Ventilador interior",sensors:null},
+"E:53":{title:"Anomalia de drenagem",flow:"Drenagem / condensados",sensors:null},
+"E:62":{title:"Falha de PCB / inverter exterior",flow:"Eletrónica exterior",sensors:null},
+"E:63":{title:"Falha de controlo inverter exterior",flow:"Eletrónica exterior",sensors:null},
+"E:64":{title:"Falha do filtro ativo / PFC",flow:"Alimentação / eletrónica de potência",sensors:null},
+"E:65":{title:"Falha IPM",flow:"Inverter / módulo de potência",sensors:null},
+"E:71":{title:"Termístor exterior",flow:"Sensor de temperatura exterior",sensors:"outdoor"},
+"E:73":{title:"Termístor exterior / permutador",flow:"Sensor exterior",sensors:"outdoorhex"},
+"E:74":{title:"Termístor de descarga",flow:"Sensor de descarga",sensors:"discharge"},
+"E:77":{title:"Termístor exterior",flow:"Sensor exterior",sensors:"outdoor"},
+"E:84":{title:"Falha do sensor de corrente",flow:"Medição de corrente",sensors:null},
+"E:86":{title:"Proteção / pressão elevada",flow:"Pressão / proteção",sensors:null},
+"E:94":{title:"Proteção de sobrecorrente",flow:"Compressor / inverter",sensors:null},
+"E:95":{title:"Falha de controlo do compressor",flow:"Compressor / inverter",sensors:null},
+"E:97":{title:"Falha do ventilador exterior",flow:"Ventilador exterior",sensors:null},
+"E:99":{title:"Falha da válvula de 4 vias",flow:"Válvula de 4 vias",sensors:null},
+"EA1":{title:"Temperatura de descarga elevada",flow:"Sensor / proteção de descarga",sensors:"discharge"}
+};
+const tables={
+room:{name:"Ambiente interior",vals:[[0,33.6],[5,25.9],[10,20.2],[15,15.8],[20,12.535],[25,10],[30,8],[35,6.5],[40,5.3],[45,4.35],[50,3.59]]},
+hex:{name:"Permutador interior",vals:[[0,176],[5,134],[10,103],[15,80.3],[20,62.905],[25,49.7],[30,39.6],[35,31.7],[40,25.6],[45,20.8],[50,17.1]]},
+discharge:{name:"Descarga",vals:[[20,64.501]]},compressor:{name:"Compressor",vals:[[20,62.55]]},
+outdoorhex:{name:"Permutador exterior",vals:[[20,6.10]]},outdoor:{name:"Temperatura exterior",vals:[[20,12.643]]}
+};
+function show(id){document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));document.getElementById(id).classList.remove("hidden");window.scrollTo(0,0);document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"))}
+function startCode(code){
+show("diagnosis");
+const d=data[code];
+const model=document.getElementById("model")?.value||"Modelo não selecionado";
+document.getElementById("diagTitle").textContent=code+" — "+d.title;
+document.getElementById("diagSub").textContent=model;
+let sensorBlock=d.sensors
+? `<button onclick="show('thermistor');document.getElementById('sensor').value='${d.sensors}'">🧪 Abrir teste de termístor</button>`
+: `<div class="step"><b>Nota</b><br><span class="muted">Este código não é um teste de termístor. Segue o manual específico da série para medições e valores.</span></div>`;
+document.getElementById("diagCard").innerHTML=`
+<div class="step"><b>PASSO 1 — Confirmar equipamento</b><br><span class="muted">Confirmar unidade interior, unidade exterior, modelo e série. O mesmo código pode ter significados diferentes noutras famílias.</span></div>
+<div class="step"><b>PASSO 2 — Confirmar o código</b><br><span class="muted">Registar exatamente o código apresentado e o estado dos LEDs/display antes de apagar o erro.</span></div>
+<div class="step"><b>PASSO 3 — Inspeção</b><br><span class="muted">Verificar fichas, cablagem, conectores, sinais de humidade, danos físicos e componentes relacionados com ${d.flow.toLowerCase()}.</span></div>
+${sensorBlock}
+<div class="step"><b>PASSO 4 — Se o componente estiver correto</b><br><span class="muted">Se as medições estiverem dentro da referência do modelo, continuar para cablagem, alimentação e circuito de deteção da PCB conforme o manual técnico.</span></div>
+<div class="card warn"><b>⚠️ Segurança</b><br><span class="muted">Testes elétricos em funcionamento e circuitos inverter podem envolver tensões perigosas. Apenas técnico qualificado e sempre segundo o procedimento do fabricante.</span></div>
+<button onclick="toggleFav('${code}')">⭐ Guardar nos favoritos</button>
+<div class="card muted">Base inicial General/Fujitsu. Os códigos e valores são dependentes da família/modelo; esta versão é um protótipo de apoio ao diagnóstico.</div>`;
+}
+function checkThermistor(){const s=document.getElementById("sensor").value,t=Number(document.getElementById("temp").value),r=Number(document.getElementById("ohm").value),tbl=tables[s];if(!r){document.getElementById("thermResult").innerHTML='<div class="card warn">Introduz a resistência medida.</div>';return}let nearest=tbl.vals.reduce((a,b)=>Math.abs(b[0]-t)<Math.abs(a[0]-t)?b:a);let target=nearest[1], diff=Math.abs(r-target)/target;let cls=diff<=.15?"success":diff<=.35?"warn":"danger";let label=diff<=.15?"🟢 Compatível":diff<=.35?"🟡 Suspeito":"🔴 Fora da referência";document.getElementById("thermResult").innerHTML=`<div class="card ${cls}"><b>${label}</b><p>Referência mais próxima: ${nearest[1]} kΩ a ${nearest[0]} °C</p><p>Medido: <b>${r} kΩ</b> a ${t} °C</p><small>Comparação indicativa do protótipo; a tabela exata do modelo deve prevalecer.</small></div>`}
+function thermistorHint(){document.getElementById("thermResult").innerHTML=""}
+function symptom(s){show("diagnosis");document.getElementById("diagTitle").textContent=s;document.getElementById("diagSub").textContent="Diagnóstico guiado — primeira versão";document.getElementById("diagCard").innerHTML=`<div class="step"><b>1. Confirmar o sintoma</b><br><span class="muted">Registar modo de funcionamento, temperaturas e condições da máquina.</span></div><div class="step"><b>2. Alimentação e comandos</b><br><span class="muted">Confirmar alimentação, proteções, comando e existência de códigos.</span></div><div class="step"><b>3. Ventilação e sensores</b><br><span class="muted">Verificar ventiladores, filtros, permutadores e sensores.</span></div><div class="step"><b>4. Circuito frigorífico</b><br><span class="muted">Quando aplicável e por técnico qualificado: temperaturas, pressões e condições de funcionamento.</span></div><button onclick="show('home')">← Voltar ao início</button>`}
+function toggleFav(code){let f=JSON.parse(localStorage.getItem("favs")||"[]");if(!f.includes(code))f.push(code);localStorage.setItem("favs",JSON.stringify(f));alert("Guardado nos favoritos");}
+function renderFav(){let f=JSON.parse(localStorage.getItem("favs")||"[]");document.getElementById("favList").innerHTML=f.length?f.map(x=>`<button onclick="startCode('${x}')" style="margin:5px 0">${x} — ${data[x].title}</button>`).join(""):"Ainda não tens favoritos."}
+function searchAll(){let q=document.getElementById("search").value.trim().toUpperCase();if(!q){show("home");return}show("searchResults");let found=Object.keys(data).filter(k=>(k+" "+data[k].title+" "+data[k].flow).toUpperCase().includes(q));document.getElementById("results").innerHTML=found.length?found.map(k=>`<div class="card"><b>${k}</b><p class="muted">${data[k].title}</p><button onclick="startCode('${k}')">Diagnosticar</button></div>`).join(""):'<div class="card">Nenhum resultado nesta versão.</div>'}
+renderFav();
+</script>
+</body></html>
